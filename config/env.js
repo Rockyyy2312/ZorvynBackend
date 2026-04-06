@@ -10,5 +10,7 @@ dotenv.config();
 export const config = {
     port: process.env.PORT || 5000,
     mongoUri: process.env.MONGO_URI || 'mongodb://localhost:27017/financedb',
-    env: process.env.NODE_ENV || 'development'
+    env: process.env.NODE_ENV || 'development',
+    jwtSecret: process.env.JWT_SECRET || 'zorvyn_finance_secret_key_9876',
+    jwtExpiresIn: process.env.JWT_EXPIRES_IN || '30d'
 };

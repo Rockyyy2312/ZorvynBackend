@@ -1,0 +1,181 @@
+{
+    "info": {
+        "name": "Zorvyn Backend API",
+        "description": "Comprehensive Postman test limits demonstrating the complete backend REST flow of Zorvyn inclusive of Authorization.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "1. Authentication",
+            "item": [
+                {
+                    "name": "Register Admin User",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "http://localhost:5000/api/auth/register",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "5000",
+                            "path": [
+                                "api",
+                                "auth",
+                                "register"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"name\": \"System Admin\",\n    \"email\": \"admin@zorvyn.com\",\n    \"password\": \"Admin123!\",\n    \"role\": \"admin\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Login Admin User",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "url": {
+                            "raw": "http://localhost:5000/api/auth/login",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "5000",
+                            "path": [
+                                "api",
+                                "auth",
+                                "login"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"admin@zorvyn.com\",\n    \"password\": \"Admin123!\"\n}"
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "2. Transactions",
+            "item": [
+                {
+                    "name": "Create Income Record",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            },
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer REPLACE_WITH_JWT_TOKEN_FROM_LOGIN"
+                            }
+                        ],
+                        "url": {
+                            "raw": "http://localhost:5000/api/transactions",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "5000",
+                            "path": [
+                                "api",
+                                "transactions"
+                            ]
+                        },
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"amount\": 8500,\n    \"type\": \"income\",\n    \"category\": \"Salary\",\n    \"notes\": \"Monthly technical payroll\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Get Transactions (Paginated Search)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer REPLACE_WITH_JWT_TOKEN_FROM_LOGIN"
+                            }
+                        ],
+                        "url": {
+                            "raw": "http://localhost:5000/api/transactions?type=income&page=1&limit=5&sort=amount",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "5000",
+                            "path": [
+                                "api",
+                                "transactions"
+                            ],
+                            "query": [
+                                {
+                                    "key": "type",
+                                    "value": "income"
+                                },
+                                {
+                                    "key": "page",
+                                    "value": "1"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "5"
+                                },
+                                {
+                                    "key": "sort",
+                                    "value": "amount"
+                                }
+                            ]
+                        }
+                    }
+                }
+            ]
+        },
+        {
+            "name": "3. Dashboard Analytics",
+            "item": [
+                {
+                    "name": "Fetch Dashboard Overview",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Authorization",
+                                "value": "Bearer REPLACE_WITH_JWT_TOKEN_FROM_LOGIN"
+                            }
+                        ],
+                        "url": {
+                            "raw": "http://localhost:5000/api/dashboard/overview",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "5000",
+                            "path": [
+                                "api",
+                                "dashboard",
+                                "overview"
+                            ]
+                        }
+                    }
+                }
+            ]
+        }
+    ]
+}

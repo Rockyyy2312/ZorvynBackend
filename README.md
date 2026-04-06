@@ -213,7 +213,7 @@ Create `.env` file as shown above
 ### 4. Run Server
 
 ```
-npm run dev
+npm start
 ```
 
 ---

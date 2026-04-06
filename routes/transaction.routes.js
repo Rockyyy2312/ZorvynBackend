@@ -1,25 +1,20 @@
 import express from 'express';
 import { protect, authorizeRoles } from '../middleware/auth.middleware.js';
 import { create, getAll, getById, update, remove } from '../controllers/transaction.controller.js';
+import { validate } from '../middleware/validate.middleware.js';
+import { createTransactionSchema, getTransactionsQuerySchema } from '../validations/transaction.validation.js';
 
 const router = express.Router();
 
-// Apply global protect middleware requiring JWT auth
 router.use(protect);
 
-// GET /api/transactions -> Access: admin, analyst, viewer
-router.get('/', authorizeRoles('admin', 'analyst', 'viewer'), getAll);
-
-// GET /api/transactions/:id -> Access: admin, analyst, viewer
+// Applied Zod parsing querying configurations globally allowing safe searching natively
+router.get('/', authorizeRoles('admin', 'analyst', 'viewer'), validate(getTransactionsQuerySchema), getAll);
 router.get('/:id', authorizeRoles('admin', 'analyst', 'viewer'), getById);
 
-// POST /api/transactions -> Access: admin only
-router.post('/', authorizeRoles('admin'), create);
-
-// PUT /api/transactions/:id -> Access: admin only
-router.put('/:id', authorizeRoles('admin'), update);
-
-// DELETE /api/transactions/:id -> Access: admin only
+// Mapping explicit body checking properties isolating errors beforehand 
+router.post('/', authorizeRoles('admin'), validate(createTransactionSchema), create);
+router.put('/:id', authorizeRoles('admin'), validate(createTransactionSchema), update);
 router.delete('/:id', authorizeRoles('admin'), remove);
 
 export default router;

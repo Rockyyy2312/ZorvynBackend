@@ -1,73 +1,77 @@
 import Transaction from '../models/transaction.model.js';
+import AppError from '../utils/AppError.js';
 
 export const createTransaction = async (data, userId) => {
-    if (!data.amount || !data.type || !data.category) {
-        throw new Error('Please provide amount, type, and category');
-    }
-
     const transaction = await Transaction.create({ ...data, user: userId });
     return transaction;
 };
 
 export const getTransactions = async (queryParams, user) => {
-    const { type, category, startDate, endDate, sort } = queryParams;
+    const { type, category, startDate, endDate, sort, page = 1, limit = 10, search } = queryParams;
     let query = {};
 
-    // Ownership logic: Admin sees all, others see only theirs
     if (user.role !== 'admin') {
         query.user = user._id;
     }
 
-    // Filtering
-    if (type) {
-        query.type = type;
-    }
-    if (category) {
-        query.category = category;
-    }
+    if (type) query.type = type;
+    if (category) query.category = category;
+
     if (startDate || endDate) {
         query.date = {};
         if (startDate) query.date.$gte = new Date(startDate);
         if (endDate) query.date.$lte = new Date(endDate);
     }
 
-    // Sorting
-    let sortOption = {};
-    if (sort === 'date') {
-        sortOption.date = -1; // Newest first
-    } else if (sort === 'amount') {
-        sortOption.amount = -1; // Highest amount first
-    } else {
-        sortOption.createdAt = -1; // Default
+    // Text search execution globally
+    if (search) {
+        query.$or = [
+            { category: { $regex: search, $options: 'i' } },
+            { notes: { $regex: search, $options: 'i' } }
+        ];
     }
+
+    let sortOption = {};
+    if (sort === 'date') sortOption.date = -1;
+    else if (sort === 'amount') sortOption.amount = -1;
+    else sortOption.createdAt = -1;
+
+    // Pagination computational mapping
+    const pageNumber = parseInt(page, 10);
+    const limitNumber = parseInt(limit, 10);
+    const skip = (pageNumber - 1) * limitNumber;
+
+    const total = await Transaction.countDocuments(query);
 
     const transactions = await Transaction.find(query)
         .sort(sortOption)
+        .skip(skip)
+        .limit(limitNumber)
         .populate('user', 'name email');
 
-    return transactions;
+    return {
+        data: transactions,
+        pagination: {
+            total,
+            page: pageNumber,
+            pages: Math.ceil(total / limitNumber),
+            limit: limitNumber
+        }
+    };
 };
 
 export const getTransactionById = async (id, user) => {
     const transaction = await Transaction.findById(id).populate('user', 'name email');
+    if (!transaction) throw new AppError('Transaction not found', 404);
 
-    if (!transaction) {
-        throw new Error('Transaction not found');
-    }
-
-    // Ownership Validation
     if (user.role !== 'admin' && transaction.user._id.toString() !== user._id.toString()) {
-        throw new Error('Not authorized to access this transaction');
+        throw new AppError('Not authorized to access this transaction', 403);
     }
-
     return transaction;
 };
 
 export const updateTransaction = async (id, data, user) => {
-    // We use getTransactionById to leverage its ownership check and 404
-    const transaction = await getTransactionById(id, user);
-
-    // Admin bypass is already handled by route guards, but this adds extra safety
+    await getTransactionById(id, user);
     const updatedTransaction = await Transaction.findByIdAndUpdate(
         id,
         { $set: data },

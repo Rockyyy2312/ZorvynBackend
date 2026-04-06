@@ -1,47 +1,27 @@
 import * as dashboardService from '../services/dashboard.service.js';
+import { catchAsync } from '../utils/catchAsync.js';
 
-export const getSummary = async (req, res, next) => {
-    try {
-        const data = await dashboardService.getSummary(req.user, req.query);
-        // Returning exactly the requested clean JSON format
-        res.status(200).json(data);
-    } catch (error) {
-        next(error);
-    }
-};
+export const getSummary = catchAsync(async (req, res, next) => {
+    const data = await dashboardService.getSummary(req.user, req.query);
+    res.status(200).json(data);
+});
 
-export const getCategories = async (req, res, next) => {
-    try {
-        const data = await dashboardService.getCategories(req.user, req.query);
-        res.status(200).json({ success: true, data });
-    } catch (error) {
-        next(error);
-    }
-};
+export const getCategories = catchAsync(async (req, res, next) => {
+    const data = await dashboardService.getCategories(req.user, req.query);
+    res.status(200).json({ success: true, data });
+});
 
-export const getMonthlyTrends = async (req, res, next) => {
-    try {
-        const data = await dashboardService.getMonthlyTrends(req.user, req.query);
-        res.status(200).json({ success: true, data });
-    } catch (error) {
-        next(error);
-    }
-};
+export const getMonthlyTrends = catchAsync(async (req, res, next) => {
+    const data = await dashboardService.getMonthlyTrends(req.user, req.query);
+    res.status(200).json({ success: true, data });
+});
 
-export const getRecentTransactions = async (req, res, next) => {
-    try {
-        const data = await dashboardService.getRecentTransactions(req.user, req.query);
-        res.status(200).json({ success: true, count: data.length, data });
-    } catch (error) {
-        next(error);
-    }
-};
+export const getRecentTransactions = catchAsync(async (req, res, next) => {
+    const data = await dashboardService.getRecentTransactions(req.user, req.query);
+    res.status(200).json({ success: true, count: data.length, data });
+});
 
-export const getOverview = async (req, res, next) => {
-    try {
-        const data = await dashboardService.getOverview(req.user, req.query);
-        res.status(200).json({ success: true, data });
-    } catch (error) {
-        next(error);
-    }
-};
+export const getOverview = catchAsync(async (req, res, next) => {
+    const data = await dashboardService.getOverview(req.user, req.query);
+    res.status(200).json({ success: true, data });
+});

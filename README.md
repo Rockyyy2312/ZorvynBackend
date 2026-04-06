@@ -285,7 +285,7 @@ npm run dev
 
 ## 👨💻 Author
 
-**Laukik P**
+**Laukik Parashare**
 
 ---
 

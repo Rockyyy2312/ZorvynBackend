@@ -1,0 +1,9 @@
+/**
+ * Not Found Middleware
+ * Catch requests to unknown routes
+ */
+export const notFoundHandler = (req, res, next) => {
+    const error = new Error(`Not Found - ${req.originalUrl}`);
+    res.status(404);
+    next(error);
+};

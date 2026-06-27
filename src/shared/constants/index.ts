@@ -14,6 +14,7 @@ export const PLAN_LIMITS = {
     MAX_TRANSACTIONS_PER_MONTH: 100,
     MAX_BUDGETS: 5,
     MAX_GOALS: 3,
+    MAX_SUBSCRIPTIONS: 5,
     AI_MESSAGES_PER_DAY: 5,
   },
   PREMIUM: {
@@ -21,6 +22,7 @@ export const PLAN_LIMITS = {
     MAX_TRANSACTIONS_PER_MONTH: Infinity,
     MAX_BUDGETS: Infinity,
     MAX_GOALS: Infinity,
+    MAX_SUBSCRIPTIONS: Infinity,
     AI_MESSAGES_PER_DAY: 50,
   },
   FAMILY: {
@@ -28,6 +30,7 @@ export const PLAN_LIMITS = {
     MAX_TRANSACTIONS_PER_MONTH: Infinity,
     MAX_BUDGETS: Infinity,
     MAX_GOALS: Infinity,
+    MAX_SUBSCRIPTIONS: Infinity,
     AI_MESSAGES_PER_DAY: 100,
   },
   BUSINESS: {
@@ -35,6 +38,7 @@ export const PLAN_LIMITS = {
     MAX_TRANSACTIONS_PER_MONTH: Infinity,
     MAX_BUDGETS: Infinity,
     MAX_GOALS: Infinity,
+    MAX_SUBSCRIPTIONS: Infinity,
     AI_MESSAGES_PER_DAY: 200,
   },
 } as const

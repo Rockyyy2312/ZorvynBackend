@@ -2,6 +2,7 @@ import { TransactionRepository } from './transaction.repository'
 import { WalletRepository } from '../wallets/wallet.repository'
 import { BudgetService, budgetService } from '../budgets/budget.service'
 import { notificationService } from '../notifications/notification.service'
+import { aiService } from '../ai/ai.service'
 import { NotFoundError, BusinessRuleError } from '@/shared/errors'
 import { auditLog } from '@/lib/audit'
 import { Decimal } from '@prisma/client/runtime/library'
@@ -66,12 +67,34 @@ export class TransactionService {
         throw new BusinessRuleError('TRANSACTION_CONFLICT', 'Concurrent write conflict. Please retry.')
       }
 
-      // 3. Create transaction record
+      // 3. Resolve categoryId (auto-suggest if missing)
+      let categoryId = dto.categoryId || null
+      let aiCategorized = false
+      if (!categoryId) {
+        const name = await aiService.categorizeTransaction(
+          dto.description || '',
+          dto.merchant || '',
+          dto.type
+        )
+        const cat = await tx.category.findFirst({
+          where: {
+            name,
+            OR: [{ userId }, { isSystem: true }],
+            deletedAt: null,
+          },
+        })
+        if (cat) {
+          categoryId = cat.id
+          aiCategorized = true
+        }
+      }
+
+      // 4. Create transaction record
       const transaction = await tx.transaction.create({
         data: {
           userId,
           walletId: dto.walletId,
-          categoryId: dto.categoryId || null,
+          categoryId,
           type: dto.type,
           amount,
           description: dto.description || null,
@@ -79,6 +102,7 @@ export class TransactionService {
           transactionDate: new Date(dto.transactionDate),
           status: 'COMPLETED',
           tags: dto.tags || [],
+          aiCategorized,
           version: 0,
         },
       })

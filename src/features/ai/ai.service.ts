@@ -205,6 +205,66 @@ Please feel free to ask about these topics!`
 
     return 'Miscellaneous'
   }
+
+  async generateWeeklyInsight(userId: string): Promise<string> {
+    // 1. Fetch user's notification preferences
+    const preferences = await prisma.notificationPreference.findUnique({
+      where: { userId },
+    })
+
+    // If user turned off AI insights, return early
+    if (preferences && !preferences.aiInsights) {
+      return ''
+    }
+
+    const user = await prisma.user.findUnique({ where: { id: userId } })
+    if (!user) return ''
+
+    // 2. Build context
+    const context = await this.buildContext(userId)
+
+    const prompt = `You are a financial advisor. Based on this user context, write a proactive, personalized, and constructive weekly financial insight. 
+Rules:
+- Be concise (2-3 sentences max).
+- Cover one key area: either budget compliance, unusual spend patterns, or savings goals progress.
+- DO NOT give licensed investment advice (e.g. do not say "buy stock X").
+- Keep it educational and constructive.
+
+User Context:
+${context}
+`
+
+    let content = ''
+    if (this.openai) {
+      try {
+        const response = await this.openai.chat.completions.create({
+          model: 'gpt-4o-mini',
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.7,
+          max_completion_tokens: 300,
+        })
+        content = response.choices[0]?.message?.content?.trim() || ''
+      } catch (err) {
+        console.warn('OpenAI insights generation failed, falling back to mock weekly insights', err)
+      }
+    }
+
+    if (!content) {
+      content = `Great job tracking your finances! You have active wallets and budgets set up. Keep monitoring your transactions to avoid exceeding your monthly budget thresholds.`
+    }
+
+    // Save as an AI_INSIGHT notification
+    await prisma.notification.create({
+      data: {
+        userId,
+        type: 'AI_INSIGHT',
+        title: 'Your Weekly AI Financial Insight',
+        body: content,
+      },
+    })
+
+    return content
+  }
 }
 
 export const aiService = new AIService()

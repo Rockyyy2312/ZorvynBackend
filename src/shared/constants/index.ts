@@ -1,0 +1,40 @@
+export const AUTH = {
+  ACCESS_TOKEN_TTL_SECONDS: 900, // 15 minutes
+  REFRESH_TOKEN_TTL_DAYS: 30,
+  PASSWORD_SALT_ROUNDS: 12,
+  MAX_SESSIONS_FREE: 3,
+  MAX_SESSIONS_PREMIUM: 10,
+  RESET_TOKEN_TTL_HOURS: 1,
+  VERIFY_TOKEN_TTL_HOURS: 24,
+} as const
+
+export const PLAN_LIMITS = {
+  FREE: {
+    MAX_WALLETS: 3,
+    MAX_TRANSACTIONS_PER_MONTH: 100,
+    MAX_BUDGETS: 5,
+    MAX_GOALS: 3,
+    AI_MESSAGES_PER_DAY: 5,
+  },
+  PREMIUM: {
+    MAX_WALLETS: 20,
+    MAX_TRANSACTIONS_PER_MONTH: Infinity,
+    MAX_BUDGETS: Infinity,
+    MAX_GOALS: Infinity,
+    AI_MESSAGES_PER_DAY: 50,
+  },
+  FAMILY: {
+    MAX_WALLETS: 30,
+    MAX_TRANSACTIONS_PER_MONTH: Infinity,
+    MAX_BUDGETS: Infinity,
+    MAX_GOALS: Infinity,
+    AI_MESSAGES_PER_DAY: 100,
+  },
+  BUSINESS: {
+    MAX_WALLETS: 100,
+    MAX_TRANSACTIONS_PER_MONTH: Infinity,
+    MAX_BUDGETS: Infinity,
+    MAX_GOALS: Infinity,
+    AI_MESSAGES_PER_DAY: 200,
+  },
+} as const

@@ -1,4 +1,6 @@
 import { prisma } from '@/lib/prisma'
+import { notificationQueue } from '@/lib/queue'
+import { logger } from '@/lib/logger'
 import { NotificationType } from '@prisma/client'
 
 export class NotificationService {
@@ -10,19 +12,39 @@ export class NotificationService {
     data?: any
   ) {
     try {
-      return await prisma.notification.create({
-        data: {
-          userId,
-          type,
-          title,
-          body,
-          data: data || null,
-          isRead: false,
-        },
+      // 1. Asynchronous push to queue
+      await notificationQueue.add('send-notification', {
+        userId,
+        type,
+        title,
+        body,
+        data,
       })
+      logger.info({ userId, type }, 'Asynchronously queued notification')
+      return { status: 'queued' }
     } catch (error) {
-      console.error('Failed to create in-app notification:', error)
-      return null
+      logger.warn(
+        { err: error, userId, type },
+        'BullMQ queue error. Falling back to inline database notification.'
+      )
+
+      // 2. Fail-open synchronous fallback in database
+      try {
+        const notification = await prisma.notification.create({
+          data: {
+            userId,
+            type,
+            title,
+            body,
+            data: data || null,
+            isRead: false,
+          },
+        })
+        return notification
+      } catch (dbError) {
+        logger.error({ err: dbError, userId }, 'Failed to persist fallback inline notification')
+        return null
+      }
     }
   }
 }

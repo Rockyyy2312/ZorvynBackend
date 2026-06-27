@@ -41,6 +41,7 @@
     "openai": "^6.45.0",
     "pino": "^9.7.0",
     "pino-pretty": "^13.0.0",
+    "razorpay": "^2.9.6",
     "react": "19.2.4",
     "react-chartjs-2": "^5.3.0",
     "react-dom": "19.2.4",
